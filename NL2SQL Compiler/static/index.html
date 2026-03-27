@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NL2SQL Compiler - Chat with Your Data</title>
+    <meta name="description" content="An AI-powered assistant that helps you query databases using natural language">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- Sidebar (hidden by default, slides in) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">History</h2>
+                <button class="sidebar-close-btn" id="closeSidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="sessions-list" id="sessionsList">
+                <!-- Sessions loaded dynamically -->
+            </div>
+
+            <div class="sidebar-bottom">
+                <!-- Database Info -->
+                <div class="db-info-card" id="dbInfoCard">
+                    <div class="db-info-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <ellipse cx="12" cy="5" rx="9" ry="3" />
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                        </svg>
+                        <div class="db-info-text">
+                            <span class="db-name" id="dbName">sample.db</span>
+                            <span class="db-meta" id="dbMeta">Loading...</span>
+                        </div>
+                    </div>
+                    <button class="icon-btn reset-btn" id="resetDbBtn" style="display:none;" title="Reset to default">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1 4 1 10 7 10" />
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                        </svg>
+                    </button>
+                </div>
+
+                <button class="sidebar-action-btn" id="uploadDbBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload Database
+                </button>
+                <input type="file" id="dbFileInput" accept=".db" style="display:none;">
+
+                <button class="sidebar-action-btn" id="schemaBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                    View Schema
+                </button>
+            </div>
+        </aside>
+
+        <!-- Overlay for sidebar -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Chat Messages Area -->
+            <div class="chat-area" id="chatMessages">
+
+                <!-- Welcome Screen (shown when no messages) -->
+                <div class="welcome-screen" id="welcomeContainer">
+                    <div class="welcome-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </div>
+                    <h1 class="welcome-heading">What can I help you with?</h1>
+                    <p class="welcome-sub">Ask me anything about your data. I'll convert it to SQL and get your answers.
+                    </p>
+
+                    <div class="suggestions" id="suggestions">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="bottom-bar">
+                <div class="input-container">
+                    <textarea id="messageInput" placeholder="Ask anything..." rows="1" autofocus></textarea>
+                    <button class="send-btn" id="sendBtn" disabled title="Send message">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="19" x2="12" y2="5" />
+                            <polyline points="5 12 12 5 19 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="bottom-links">
+                    <button class="link-btn" id="newChatBtn">New conversation</button>
+                    <span class="separator">·</span>
+                    <button class="link-btn" id="historyBtn">History</button>
+                    <span class="separator">·</span>
+                    <span class="status-text" id="statusText">
+                        <span class="status-dot" id="statusDot"></span>
+                        Connecting...
+                    </span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Schema Modal -->
+    <div class="modal" id="schemaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Database Schema</h2>
+                <button class="modal-close" id="closeSchemaModal">&times;</button>
+            </div>
+            <div class="modal-body" id="schemaContent">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Modal -->
+    <div class="modal" id="chartModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Data Visualization</h2>
+                <div class="chart-controls">
+                    <select id="chartType">
+                        <option value="bar">Bar Chart</option>
+                        <option value="line">Line Chart</option>
+                        <option value="pie">Pie Chart</option>
+                        <option value="doughnut">Doughnut Chart</option>
+                    </select>
+                </div>
+                <button class="modal-close" id="closeChartModal">&times;</button>
+            </div>
+            <div class="modal-body chart-container">
+                <canvas id="dataChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

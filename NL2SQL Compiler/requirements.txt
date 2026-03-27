@@ -1,0 +1,26 @@
+# Core Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+
+# LangChain & LLM
+langchain>=0.1.0
+langchain-core>=0.1.0
+langchain-community>=0.0.10
+langchain-groq>=0.0.1
+langchain-openai>=0.0.5
+langchain-google-genai>=0.0.6
+
+# Database - SQLite (built-in)
+sqlalchemy>=2.0.0
+
+# Database - PostgreSQL (optional)
+asyncpg>=0.29.0
+
+# Database - MySQL (optional)
+aiomysql>=0.2.0
+
+# Utilities
+python-multipart>=0.0.6
+aiofiles>=23.2.0
