@@ -53,7 +53,7 @@ Built with SOLID principles and a pluggable, interface-driven architecture:
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/NL2SQL-Compiler.git
+git clone https://github.com/rishu03-ai/NL2SQL_Compiler.git
 cd NL2SQL-Compiler
 
 python -m venv venv
